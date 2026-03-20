@@ -6,4 +6,8 @@ import com.vispana.api.model.Status;
 import java.util.Map;
 
 public record ContainerNode(
-    String name, Host host, Map<String, Status> processesStatus, HostMetrics hostMetrics) {}
+  String name,
+  Host host,
+  Map<String, Status> processesStatus,
+  HostMetrics hostMetrics
+) {}

@@ -9,8 +9,13 @@ public class VespaVersionFetcher {
 
   // this API might be useful to get which container is queryable
   public static VespaVersion fetch(String configHost) {
-    var url = configHost + "/config/v2/tenant/default/application/default/cloud.config.model";
-    String vespaVersion = requestGet(url, ConfigModelSchema.class).getVespaVersion();
+    var url =
+      configHost +
+      "/config/v2/tenant/default/application/default/cloud.config.model";
+    String vespaVersion = requestGet(
+      url,
+      ConfigModelSchema.class
+    ).getVespaVersion();
     return VespaVersion.fromString(vespaVersion);
   }
 }

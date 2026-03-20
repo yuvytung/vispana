@@ -17,49 +17,60 @@ import java.util.Map;
 
 public class ContainerAssembler {
 
-  public static ContainerNodes assemble(String configHost, Map<String, MetricsNode> vespaMetrics) {
+  public static ContainerNodes assemble(
+    String configHost,
+    Map<String, MetricsNode> vespaMetrics
+  ) {
     var clusterInfoUrl = configHost + "/config/v1/cloud.config.cluster-info/";
-    var containers =
-        requestGet(clusterInfoUrl, ClusterInfoSchema.class).getConfigs().stream()
-            .map(NameExtractorFromUrl::nameFromUrl)
-            .filter(clusterName -> !"admin".equals(clusterName)) // always remove admin entry
-            .map(
-                clusterName -> {
-                  var url = configHost + "/config/v1/cloud.config.cluster-info/" + clusterName;
-                  return requestGet(url, ContainerSchema.class);
-                })
-            .toList();
+    var containers = requestGet(clusterInfoUrl, ClusterInfoSchema.class)
+      .getConfigs()
+      .stream()
+      .map(NameExtractorFromUrl::nameFromUrl)
+      .filter(clusterName -> !"admin".equals(clusterName)) // always remove admin entry
+      .map(clusterName -> {
+        var url =
+          configHost + "/config/v1/cloud.config.cluster-info/" + clusterName;
+        return requestGet(url, ContainerSchema.class);
+      })
+      .toList();
 
-    var containerNodes =
-        containers.stream()
-            .map(containerSchema -> containerCluster(configHost, vespaMetrics, containerSchema))
-            .toList();
+    var containerNodes = containers
+      .stream()
+      .map(containerSchema ->
+        containerCluster(configHost, vespaMetrics, containerSchema)
+      )
+      .toList();
 
     return new ContainerNodes(containerNodes);
   }
 
   private static ContainerCluster containerCluster(
-      String configHost, Map<String, MetricsNode> vespaMetrics, ContainerSchema containerSchema) {
-    var nodesInCluster =
-        containerSchema.getServices().stream()
-            .map(
-                service -> {
-                  var hostname = service.getHostname();
-                  var queryPort =
-                      service.getPorts().stream()
-                          .filter(port -> port.getTags().contains("query"))
-                          .map(port -> port.getNumber())
-                          .findFirst()
-                          .orElse(-1L);
-                  var processStatus = processStatus(hostname, vespaMetrics);
-                  var systemMetrics = systemMetrics(vespaMetrics.get(hostname));
-                  return new ContainerNode(
-                      service.getIndex().toString(),
-                      new Host(hostname, queryPort.intValue()),
-                      processStatus,
-                      systemMetrics);
-                })
-            .toList();
+    String configHost,
+    Map<String, MetricsNode> vespaMetrics,
+    ContainerSchema containerSchema
+  ) {
+    var nodesInCluster = containerSchema
+      .getServices()
+      .stream()
+      .map(service -> {
+        var hostname = service.getHostname();
+        var queryPort = service
+          .getPorts()
+          .stream()
+          .filter(port -> port.getTags().contains("query"))
+          .map(port -> port.getNumber())
+          .findFirst()
+          .orElse(-1L);
+        var processStatus = processStatus(hostname, vespaMetrics);
+        var systemMetrics = systemMetrics(vespaMetrics.get(hostname));
+        return new ContainerNode(
+          service.getIndex().toString(),
+          new Host(hostname, queryPort.intValue()),
+          processStatus,
+          systemMetrics
+        );
+      })
+      .toList();
     var clusterId = containerSchema.getClusterId();
     var containerType = fetchContainerType(configHost, clusterId);
 
@@ -69,21 +80,30 @@ public class ContainerAssembler {
     return new ContainerCluster(clusterId, nodesInCluster, canIndex, canSearch);
   }
 
-  private static ContainerType fetchContainerType(String configHost, String clusterName) {
+  private static ContainerType fetchContainerType(
+    String configHost,
+    String clusterName
+  ) {
     var url = configHost + "config/v1/container.components/" + clusterName;
     var containerComponents = requestGet(url, ContainerComponentsSchema.class);
 
-    var canIndex =
-        containerComponents.getComponents().stream()
-            .anyMatch(
-                component ->
-                    component.getClassId().equals("com.yahoo.docprocs.indexing.IndexingProcessor"));
+    var canIndex = containerComponents
+      .getComponents()
+      .stream()
+      .anyMatch(component ->
+        component
+          .getClassId()
+          .equals("com.yahoo.docprocs.indexing.IndexingProcessor")
+      );
 
-    var canSearch =
-        containerComponents.getComponents().stream()
-            .anyMatch(
-                component ->
-                    component.getClassId().equals("com.yahoo.prelude.cluster.ClusterSearcher"));
+    var canSearch = containerComponents
+      .getComponents()
+      .stream()
+      .anyMatch(component ->
+        component
+          .getClassId()
+          .equals("com.yahoo.prelude.cluster.ClusterSearcher")
+      );
     return ContainerType.from(canIndex, canSearch);
   }
 

@@ -1,13 +1,13 @@
 {
-  "type" : "object",
-  "properties" : {
-    "children" : {
-      "type" : "array"
+  "type": "object",
+  "properties": {
+    "children": {
+      "type": "array"
     },
-    "configs" : {
-      "type" : "array",
-      "items" : {
-        "type" : "string"
+    "configs": {
+      "type": "array",
+      "items": {
+        "type": "string"
       }
     }
   }

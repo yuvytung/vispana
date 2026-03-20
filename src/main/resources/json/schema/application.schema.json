@@ -1,16 +1,16 @@
 {
-  "type" : "object",
-  "properties" : {
-    "generation" : {
-      "type" : "integer"
+  "type": "object",
+  "properties": {
+    "generation": {
+      "type": "integer"
     },
-    "applicationPackageFileReference" : {
-      "type" : "string"
+    "applicationPackageFileReference": {
+      "type": "string"
     },
-    "modelVersions" : {
-      "type" : "array",
-      "items" : {
-        "type" : "string"
+    "modelVersions": {
+      "type": "array",
+      "items": {
+        "type": "string"
       }
     }
   }

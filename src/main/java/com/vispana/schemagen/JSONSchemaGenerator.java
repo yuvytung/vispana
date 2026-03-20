@@ -12,6 +12,7 @@ import java.net.URL;
  * '.schema.json'
  */
 public class JSONSchemaGenerator {
+
   public static void main(String[] args) throws IOException {
     var jsonMapper = new JSONSchemaGenerator();
     var application = jsonMapper.getResource("container-components.json");
@@ -32,7 +33,7 @@ public class JSONSchemaGenerator {
 
   private ObjectMapper objectMapper() {
     return new ObjectMapper()
-        .enable(JsonParser.Feature.ALLOW_COMMENTS)
-        .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+      .enable(JsonParser.Feature.ALLOW_COMMENTS)
+      .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
   }
 }

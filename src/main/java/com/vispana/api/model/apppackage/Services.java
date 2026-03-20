@@ -15,7 +15,10 @@ public class Services {
   public static Services fromXml(String xml) {
     XmlMapper xmlMapper = new XmlMapper();
     // To ignore parts off service xml that we don't need
-    xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    xmlMapper.configure(
+      DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+      false
+    );
 
     try {
       return xmlMapper.readValue(xml, Services.class);

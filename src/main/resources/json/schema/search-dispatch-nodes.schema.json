@@ -1,59 +1,59 @@
 {
-  "type" : "object",
-  "properties" : {
-    "minActivedocsPercentage" : {
-      "type" : "number"
+  "type": "object",
+  "properties": {
+    "minActivedocsPercentage": {
+      "type": "number"
     },
-    "minGroupCoverage" : {
-      "type" : "number"
+    "minGroupCoverage": {
+      "type": "number"
     },
-    "maxNodesDownPerGroup" : {
-      "type" : "integer"
+    "maxNodesDownPerGroup": {
+      "type": "integer"
     },
-    "distributionPolicy" : {
-      "type" : "string"
+    "distributionPolicy": {
+      "type": "string"
     },
-    "maxHitsPerNode" : {
-      "type" : "integer"
+    "maxHitsPerNode": {
+      "type": "integer"
     },
-    "topKProbability" : {
-      "type" : "number"
+    "topKProbability": {
+      "type": "number"
     },
-    "useMultilevelDispatch" : {
-      "type" : "boolean"
+    "useMultilevelDispatch": {
+      "type": "boolean"
     },
-    "useLocalNode" : {
-      "type" : "boolean"
+    "useLocalNode": {
+      "type": "boolean"
     },
-    "searchableCopies" : {
-      "type" : "integer"
+    "searchableCopies": {
+      "type": "integer"
     },
-    "minSearchCoverage" : {
-      "type" : "number"
+    "minSearchCoverage": {
+      "type": "number"
     },
-    "minWaitAfterCoverageFactor" : {
-      "type" : "number"
+    "minWaitAfterCoverageFactor": {
+      "type": "number"
     },
-    "maxWaitAfterCoverageFactor" : {
-      "type" : "number"
+    "maxWaitAfterCoverageFactor": {
+      "type": "number"
     },
-    "numJrtTransportThreads" : {
-      "type" : "integer"
+    "numJrtTransportThreads": {
+      "type": "integer"
     },
-    "numJrtConnectionsPerNode" : {
-      "type" : "integer"
+    "numJrtConnectionsPerNode": {
+      "type": "integer"
     },
-    "warmuptime" : {
-      "type" : "number"
+    "warmuptime": {
+      "type": "number"
     },
-    "node" : {
-      "type" : "array",
+    "node": {
+      "type": "array",
       "items": {
         "$ref": "search-dispatch-node.schema.json"
       }
     },
-    "mergeGroupingResultInSearchInvokerEnabled" : {
-      "type" : "boolean"
+    "mergeGroupingResultInSearchInvokerEnabled": {
+      "type": "boolean"
     }
   }
 }

@@ -38,166 +38,248 @@ import java.util.stream.Stream;
 public class ContentAssembler {
 
   public static ContentNodes assemble(
-      String configHost,
-      VespaVersion vespaVersion,
-      Map<String, MetricsNode> vespaMetrics,
-      String appUrl,
-      ApplicationPackage appPackage,
-      String configHostName) {
-    var contentDistributionUrl = configHost + "/config/v1/vespa.config.content.distribution/";
+    String configHost,
+    VespaVersion vespaVersion,
+    Map<String, MetricsNode> vespaMetrics,
+    String appUrl,
+    ApplicationPackage appPackage,
+    String configHostName
+  ) {
+    var contentDistributionUrl =
+      configHost + "/config/v1/vespa.config.content.distribution/";
 
-    var contentClusters =
-        requestGet(contentDistributionUrl, ContentDistributionSchema.class).getConfigs().stream()
-            .map(NameExtractorFromUrl::nameFromUrl)
-            .map(
-                clusterName -> {
-                  var dispatcher =
-                      fetchDispatcherData(
-                          configHost, clusterName, vespaVersion, appPackage, configHostName);
-                  var schemas = fetchSchemas(configHost, clusterName);
-                  var contentDistribution = fetchContentDistributionData(configHost, clusterName);
-                  var distribution =
-                      contentDistribution.getCluster().getAdditionalProperties().get(clusterName);
+    var contentClusters = requestGet(
+      contentDistributionUrl,
+      ContentDistributionSchema.class
+    )
+      .getConfigs()
+      .stream()
+      .map(NameExtractorFromUrl::nameFromUrl)
+      .map(clusterName -> {
+        var dispatcher = fetchDispatcherData(
+          configHost,
+          clusterName,
+          vespaVersion,
+          appPackage,
+          configHostName
+        );
+        var schemas = fetchSchemas(configHost, clusterName);
+        var contentDistribution = fetchContentDistributionData(
+          configHost,
+          clusterName
+        );
+        var distribution = contentDistribution
+          .getCluster()
+          .getAdditionalProperties()
+          .get(clusterName);
 
-                  var redundancy = distribution.getRedundancy().intValue();
-                  var copies = distribution.getReadyCopies().intValue();
-                  var hostsPerGroup = hostsPerGroup(distribution);
-                  var hostsCount = hostsPerGroup.size();
-                  var contentOverview =
-                      new ContentOverview(hostsCount, copies, redundancy, hostsPerGroup);
+        var redundancy = distribution.getRedundancy().intValue();
+        var copies = distribution.getReadyCopies().intValue();
+        var hostsPerGroup = hostsPerGroup(distribution);
+        var hostsCount = hostsPerGroup.size();
+        var contentOverview = new ContentOverview(
+          hostsCount,
+          copies,
+          redundancy,
+          hostsPerGroup
+        );
 
-                  var contentNodes = contentNodes(vespaMetrics, clusterName, dispatcher);
+        var contentNodes = contentNodes(vespaMetrics, clusterName, dispatcher);
 
-                  var contentData = fetchSchemaContent(appUrl, schemas, contentNodes);
+        var contentData = fetchSchemaContent(appUrl, schemas, contentNodes);
 
-                  return new ContentCluster(
-                      clusterName, contentOverview, contentData, contentNodes);
-                })
-            .toList();
+        return new ContentCluster(
+          clusterName,
+          contentOverview,
+          contentData,
+          contentNodes
+        );
+      })
+      .toList();
 
     return new ContentNodes(contentClusters);
   }
 
   private static List<ContentData> fetchSchemaContent(
-      String appUrl, List<String> schemas, List<ContentNode> contentNodes) {
-    return schemas.stream()
-        .map(
-            schemaName -> {
-              var schemaUrl = appUrl + "/content/schemas/" + schemaName + ".sd";
-              var schemaContent = requestGet(schemaUrl, String.class);
+    String appUrl,
+    List<String> schemas,
+    List<ContentNode> contentNodes
+  ) {
+    return schemas
+      .stream()
+      .map(schemaName -> {
+        var schemaUrl = appUrl + "/content/schemas/" + schemaName + ".sd";
+        var schemaContent = requestGet(schemaUrl, String.class);
 
-              var contentNodeByGroup =
-                  contentNodes.stream()
-                      .collect(groupingBy(contentNode -> contentNode.group().key()));
+        var contentNodeByGroup = contentNodes
+          .stream()
+          .collect(groupingBy(contentNode -> contentNode.group().key()));
 
-              var schemaDocCounts = countDocuments(schemaName, contentNodeByGroup);
+        var schemaDocCounts = countDocuments(schemaName, contentNodeByGroup);
 
-              return new ContentData(new Schema(schemaName, schemaContent), schemaDocCounts);
-            })
-        .toList();
+        return new ContentData(
+          new Schema(schemaName, schemaContent),
+          schemaDocCounts
+        );
+      })
+      .toList();
   }
 
-  private static TreeMap<GroupKey, Integer> hostsPerGroup(ClusterProperty distribution) {
-    return distribution.getGroup().stream()
-        .filter(group -> !"invalid".equals(group.getIndex()))
-        .map(
-            group -> {
-              var groupName = new GroupKey(group.getName());
-              // might be interesting to filter out retired nodes
-              var size = group.getNodes().size();
-              return Map.entry(groupName, size);
-            })
-        .collect(
-            Collectors.toMap(
-                Map.Entry::getKey,
-                Map.Entry::getValue,
-                (s, ignore) -> s,
-                () -> new TreeMap<>(Comparator.comparing(GroupKey::key))));
+  private static TreeMap<GroupKey, Integer> hostsPerGroup(
+    ClusterProperty distribution
+  ) {
+    return distribution
+      .getGroup()
+      .stream()
+      .filter(group -> !"invalid".equals(group.getIndex()))
+      .map(group -> {
+        var groupName = new GroupKey(group.getName());
+        // might be interesting to filter out retired nodes
+        var size = group.getNodes().size();
+        return Map.entry(groupName, size);
+      })
+      .collect(
+        Collectors.toMap(
+          Map.Entry::getKey,
+          Map.Entry::getValue,
+          (s, ignore) -> s,
+          () -> new TreeMap<>(Comparator.comparing(GroupKey::key))
+        )
+      );
   }
 
   private static List<SchemaDocCount> countDocuments(
-      String schemaName, Map<GroupKey, List<ContentNode>> contentNodeByGroup) {
-    return contentNodeByGroup.entrySet().stream()
-        .map(
-            keySet -> {
-              var groupKey = keySet.getKey();
-              var nodes = keySet.getValue();
-              var docCount =
-                  nodes.stream().flatMap(node -> count(schemaName, node)).reduce(0L, Long::sum);
-              return new SchemaDocCount(groupKey, docCount);
-            })
-        .toList();
+    String schemaName,
+    Map<GroupKey, List<ContentNode>> contentNodeByGroup
+  ) {
+    return contentNodeByGroup
+      .entrySet()
+      .stream()
+      .map(keySet -> {
+        var groupKey = keySet.getKey();
+        var nodes = keySet.getValue();
+        var docCount = nodes
+          .stream()
+          .flatMap(node -> count(schemaName, node))
+          .reduce(0L, Long::sum);
+        return new SchemaDocCount(groupKey, docCount);
+      })
+      .toList();
   }
 
   private static Stream<Long> count(String schemaName, ContentNode node) {
-    return node.otherMetrics().getServices().stream()
-        .flatMap(
-            service ->
-                service.getMetrics().stream()
-                    .filter(metrics -> schemaName.equals(metrics.getDimensions().getDocumenttype()))
-                    .map(
-                        metric -> {
-                          var documentsActive =
-                              metric.getValues().getContentProtonDocumentdbDocumentsActiveLast();
-                          return Objects.requireNonNullElse(documentsActive, 0L);
-                        }));
+    return node
+      .otherMetrics()
+      .getServices()
+      .stream()
+      .flatMap(service ->
+        service
+          .getMetrics()
+          .stream()
+          .filter(metrics ->
+            schemaName.equals(metrics.getDimensions().getDocumenttype())
+          )
+          .map(metric -> {
+            var documentsActive = metric
+              .getValues()
+              .getContentProtonDocumentdbDocumentsActiveLast();
+            return Objects.requireNonNullElse(documentsActive, 0L);
+          })
+      );
   }
 
-  private static List<String> fetchSchemas(String configHost, String clusterName) {
+  private static List<String> fetchSchemas(
+    String configHost,
+    String clusterName
+  ) {
     var url =
-        configHost + "/config/v1/search.config.index-info/" + clusterName + "/?recursive=true";
-    return requestGet(url, IndexInfoSchema.class).getConfigs().stream()
-        .map(NameExtractorFromUrl::nameFromUrl)
-        .filter(schema -> !("cluster." + clusterName).equals(schema))
-        .filter(schema -> !"union".equals(schema))
-        .toList();
+      configHost +
+      "/config/v1/search.config.index-info/" +
+      clusterName +
+      "/?recursive=true";
+    return requestGet(url, IndexInfoSchema.class)
+      .getConfigs()
+      .stream()
+      .map(NameExtractorFromUrl::nameFromUrl)
+      .filter(schema -> !("cluster." + clusterName).equals(schema))
+      .filter(schema -> !"union".equals(schema))
+      .toList();
   }
 
   private static List<Node> fetchDispatcherData(
-      String configHost,
-      String clusterName,
-      VespaVersion vespaVersion,
-      final ApplicationPackage appPackage,
-      final String configHostName) {
-
+    String configHost,
+    String clusterName,
+    VespaVersion vespaVersion,
+    final ApplicationPackage appPackage,
+    final String configHostName
+  ) {
     if (vespaVersion.major() == 7) {
       var dispatcherUrl =
-          configHost + "/config/v1/vespa.config.search.dispatch/" + clusterName + "/search";
+        configHost +
+        "/config/v1/vespa.config.search.dispatch/" +
+        clusterName +
+        "/search";
       return requestGet(dispatcherUrl, SearchDispatchSchema.class).getNode();
     } else if (vespaVersion.major() == 8 && vespaVersion.minor() < 323) {
       var dispatcherUrl =
-          configHost
-              + "/config/v2/tenant/default/application/default/vespa.config.search.dispatch-nodes/"
-              + clusterName
-              + "/search";
-      return requestGet(dispatcherUrl, SearchDispatchNodesSchema.class).getNode();
+        configHost +
+        "/config/v2/tenant/default/application/default/vespa.config.search.dispatch-nodes/" +
+        clusterName +
+        "/search";
+      return requestGet(
+        dispatcherUrl,
+        SearchDispatchNodesSchema.class
+      ).getNode();
     } else {
       return contentNodesFromAppPackage(appPackage, configHostName);
     }
   }
 
   private static ContentDistributionClusterSchema fetchContentDistributionData(
-      String configHost, String contentCluster) {
-    var url = configHost + "/config/v1/vespa.config.content.distribution/" + contentCluster;
+    String configHost,
+    String contentCluster
+  ) {
+    var url =
+      configHost +
+      "/config/v1/vespa.config.content.distribution/" +
+      contentCluster;
     return requestGet(url, ContentDistributionClusterSchema.class);
   }
 
   private static List<ContentNode> contentNodes(
-      Map<String, MetricsNode> vespaMetrics, String clusterName, List<Node> dispatcher) {
-    return dispatcher.stream().map(node -> contentNode(node, vespaMetrics, clusterName)).toList();
+    Map<String, MetricsNode> vespaMetrics,
+    String clusterName,
+    List<Node> dispatcher
+  ) {
+    return dispatcher
+      .stream()
+      .map(node -> contentNode(node, vespaMetrics, clusterName))
+      .toList();
   }
 
   private static ContentNode contentNode(
-      Node node, Map<String, MetricsNode> vespaMetrics, String clusterName) {
-
+    Node node,
+    Map<String, MetricsNode> vespaMetrics,
+    String clusterName
+  ) {
     var host = new Host(node.getHost(), node.getPort().intValue());
-    var group = new Group(new GroupKey(node.getGroup().toString()), node.getKey().toString());
+    var group = new Group(
+      new GroupKey(node.getGroup().toString()),
+      node.getKey().toString()
+    );
 
     var processStatus = processStatus(node.getHost(), vespaMetrics);
 
     var metrics = vespaMetrics.get(host.hostname());
     var systemMetrics = systemMetrics(metrics);
 
-    return new ContentNode(clusterName, host, processStatus, systemMetrics, group, metrics);
+    return new ContentNode(
+      clusterName,
+      host,
+      processStatus,
+      systemMetrics,
+      group,
+      metrics
+    );
   }
 }

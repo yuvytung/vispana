@@ -16,23 +16,23 @@ public class VespaQueryClient {
   public String query(String vespaContainerHost, String query) {
     try {
       return restClient
-          .post()
-          .uri(vespaContainerHost + "/search/")
-          .contentType(APPLICATION_JSON)
-          .body(query)
-          .retrieve()
-          .body(String.class);
+        .post()
+        .uri(vespaContainerHost + "/search/")
+        .contentType(APPLICATION_JSON)
+        .body(query)
+        .retrieve()
+        .body(String.class);
     } catch (ResourceAccessException e) {
       var exception = ExceptionUtils.getRootCause(e);
       if (exception instanceof UnresolvedAddressException) {
         var message =
-            "Failed to reach to Vespa container for host: '"
-                + vespaContainerHost
-                + "'.\n"
-                + "Vespa clusters may have internal access to this address, please check if "
-                + "the host is reachable from Vispana. If not, you may configure a routing "
-                + "address in Vispana's configuration pointing to a reachable address (e.g"
-                + "., a load balancer or a k8s service).";
+          "Failed to reach to Vespa container for host: '" +
+          vespaContainerHost +
+          "'.\n" +
+          "Vespa clusters may have internal access to this address, please check if " +
+          "the host is reachable from Vispana. If not, you may configure a routing " +
+          "address in Vispana's configuration pointing to a reachable address (e.g" +
+          "., a load balancer or a k8s service).";
         throw new RuntimeException(message);
       } else {
         throw e;

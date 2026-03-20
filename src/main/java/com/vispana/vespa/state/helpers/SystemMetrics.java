@@ -4,6 +4,7 @@ import com.vispana.api.model.HostMetrics;
 import com.vispana.client.vespa.model.MetricsNode;
 
 public class SystemMetrics {
+
   public static HostMetrics systemMetrics(MetricsNode hostMetrics) {
     var cpuUtil = 0d;
     var memoryUsage = 0d;

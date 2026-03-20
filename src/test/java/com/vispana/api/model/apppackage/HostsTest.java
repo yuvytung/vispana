@@ -17,10 +17,14 @@ class HostsTest {
     assertNotNull(hosts);
     assertEquals(8, hosts.getHosts().size());
     assertEquals(
-        "vespa-content-0-0.vespa.test.svc.cluster.local", hosts.getHosts().get(6).getName());
+      "vespa-content-0-0.vespa.test.svc.cluster.local",
+      hosts.getHosts().get(6).getName()
+    );
     assertEquals("content-0-0", hosts.getHosts().get(6).getAlias());
     assertEquals(
-        "vespa-content-0-1.vespa.test.svc.cluster.local", hosts.getHosts().get(7).getName());
+      "vespa-content-0-1.vespa.test.svc.cluster.local",
+      hosts.getHosts().get(7).getName()
+    );
     assertEquals("content-0-1", hosts.getHosts().get(7).getAlias());
   }
 }

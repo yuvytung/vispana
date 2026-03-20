@@ -23,6 +23,8 @@ public class Content {
   }
 
   public boolean hasNodes() {
-    return nodes != null && nodes.getNodes() != null && !nodes.getNodes().isEmpty();
+    return (
+      nodes != null && nodes.getNodes() != null && !nodes.getNodes().isEmpty()
+    );
   }
 }

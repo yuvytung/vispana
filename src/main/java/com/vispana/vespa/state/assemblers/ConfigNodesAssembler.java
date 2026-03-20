@@ -14,35 +14,47 @@ import java.util.List;
 import java.util.Map;
 
 public class ConfigNodesAssembler {
-  public static ConfigNodes assemble(String configHost, Map<String, MetricsNode> vespaMetrics) {
 
+  public static ConfigNodes assemble(
+    String configHost,
+    Map<String, MetricsNode> vespaMetrics
+  ) {
     var clusterControllerUrl =
-        configHost + "/config/v1/cloud.config.cluster-info/admin/cluster-controllers";
+      configHost +
+      "/config/v1/cloud.config.cluster-info/admin/cluster-controllers";
 
-    var clusterControllers = requestGet(clusterControllerUrl, ClusterControllersSchema.class);
-    var configNodes =
-        clusterControllers.getServices().stream()
-            .map(
-                service -> {
-                  var hostname = service.getHostname();
-                  var queryPort =
-                      service.getPorts().stream()
-                          .filter(port -> port.getTags().contains("query"))
-                          .map(port -> port.getNumber())
-                          .findFirst()
-                          .orElse(-1L);
+    var clusterControllers = requestGet(
+      clusterControllerUrl,
+      ClusterControllersSchema.class
+    );
+    var configNodes = clusterControllers
+      .getServices()
+      .stream()
+      .map(service -> {
+        var hostname = service.getHostname();
+        var queryPort = service
+          .getPorts()
+          .stream()
+          .filter(port -> port.getTags().contains("query"))
+          .map(port -> port.getNumber())
+          .findFirst()
+          .orElse(-1L);
 
-                  var processStatus = processStatus(hostname, vespaMetrics);
-                  var systemMetrics = systemMetrics(vespaMetrics.get(hostname));
-                  return new ConfigNode(
-                      service.getIndex().toString(),
-                      new Host(hostname, queryPort.intValue()),
-                      processStatus,
-                      systemMetrics);
-                })
-            .toList();
+        var processStatus = processStatus(hostname, vespaMetrics);
+        var systemMetrics = systemMetrics(vespaMetrics.get(hostname));
+        return new ConfigNode(
+          service.getIndex().toString(),
+          new Host(hostname, queryPort.intValue()),
+          processStatus,
+          systemMetrics
+        );
+      })
+      .toList();
 
-    var configCluster = new ConfigCluster(clusterControllers.getClusterId(), configNodes);
+    var configCluster = new ConfigCluster(
+      clusterControllers.getClusterId(),
+      configNodes
+    );
     return new ConfigNodes(List.of(configCluster));
   }
 }

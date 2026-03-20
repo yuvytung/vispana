@@ -31,7 +31,9 @@ public class Group {
   }
 
   public String getDistributionKey() {
-    return distributionKey != null ? distributionKey : FALLBACK_DISTRIBUTION_KEY;
+    return distributionKey != null
+      ? distributionKey
+      : FALLBACK_DISTRIBUTION_KEY;
   }
 
   public List<Node> getNodes() {

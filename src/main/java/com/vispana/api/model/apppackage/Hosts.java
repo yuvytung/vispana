@@ -9,6 +9,7 @@ import java.util.List;
 
 @JacksonXmlRootElement(localName = "hosts")
 public class Hosts {
+
   @JacksonXmlElementWrapper(useWrapping = false)
   @JacksonXmlProperty(localName = "host")
   List<Host> hosts;

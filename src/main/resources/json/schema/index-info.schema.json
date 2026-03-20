@@ -1,10 +1,10 @@
 {
-  "type" : "object",
-  "properties" : {
-    "configs" : {
-      "type" : "array",
-      "items" : {
-        "type" : "string"
+  "type": "object",
+  "properties": {
+    "configs": {
+      "type": "array",
+      "items": {
+        "type": "string"
       }
     }
   }

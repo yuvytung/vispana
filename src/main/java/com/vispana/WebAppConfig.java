@@ -11,6 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebAppConfig implements WebMvcConfigurer {
+
   /**
    * React routes are only accessible through front-end code. This means that '/' will load a
    * javascript that knows how to handle requests in different paths (such as
@@ -26,7 +27,9 @@ public class WebAppConfig implements WebMvcConfigurer {
   }
 
   @Bean
-  public WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> containerCustomizer() {
+  public WebServerFactoryCustomizer<
+    ConfigurableServletWebServerFactory
+  > containerCustomizer() {
     return container -> {
       container.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "/notFound"));
     };

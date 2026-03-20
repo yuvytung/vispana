@@ -18,6 +18,8 @@ class VespaVersionTest {
   @Test
   void fromStringThrowsOnInvalidVersion() {
     assertThrows(RuntimeException.class, () -> VespaVersion.fromString("7.1"));
-    assertThrows(RuntimeException.class, () -> VespaVersion.fromString("8.323.a"));
+    assertThrows(RuntimeException.class, () ->
+      VespaVersion.fromString("8.323.a")
+    );
   }
 }

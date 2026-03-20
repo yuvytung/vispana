@@ -11,7 +11,10 @@ public class Request {
   }
 
   public static <T> T requestGetWithDefaultValue(
-      String url, Class<T> responseType, T defaultValue) {
+    String url,
+    Class<T> responseType,
+    T defaultValue
+  ) {
     try {
       return requestGet(url, responseType);
     } catch (Exception exception) {

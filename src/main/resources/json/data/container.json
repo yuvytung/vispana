@@ -1,18 +1,7 @@
 {
   "clusterId": "container",
   "nodeCount": 10,
-  "nodeIndices": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9
-  ],
+  "nodeIndices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
   "services": [
     {
       "index": 0,

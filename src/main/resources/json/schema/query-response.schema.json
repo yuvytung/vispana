@@ -106,7 +106,14 @@
           "type": "number"
         }
       },
-      "required": ["coverage", "documents", "full", "nodes", "results", "resultsFull"]
+      "required": [
+        "coverage",
+        "documents",
+        "full",
+        "nodes",
+        "results",
+        "resultsFull"
+      ]
     },
     "error": {
       "properties": {

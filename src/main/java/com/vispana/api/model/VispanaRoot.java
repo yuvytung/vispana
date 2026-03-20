@@ -6,8 +6,9 @@ import com.vispana.api.model.container.ContainerNodes;
 import com.vispana.api.model.content.ContentNodes;
 
 public record VispanaRoot(
-    ConfigNodes config,
-    ContainerNodes container,
-    ContentNodes content,
-    ApplicationPackage applicationPackage,
-    VespaVersion vespaVersion) {}
+  ConfigNodes config,
+  ContainerNodes container,
+  ContentNodes content,
+  ApplicationPackage applicationPackage,
+  VespaVersion vespaVersion
+) {}

@@ -14,7 +14,9 @@ public class ContentNodesExtractor {
   public static final String UNKNOWN = "unknown";
 
   public static List<Node> contentNodesFromAppPackage(
-      final ApplicationPackage appPackage, final String configHostName) {
+    final ApplicationPackage appPackage,
+    final String configHostName
+  ) {
     Services services = Services.fromXml(appPackage.servicesContent());
     Hosts hosts = Hosts.fromXml(appPackage.hostsContent());
 
@@ -27,26 +29,41 @@ public class ContentNodesExtractor {
       // is single node vespa setup
       if (services.getContent().getNodes().size() == 1) {
         return List.of(
-            createNode(
-                new Group(), services.getContent().getNodes().get(0), hosts, configHostName));
+          createNode(
+            new Group(),
+            services.getContent().getNodes().get(0),
+            hosts,
+            configHostName
+          )
+        );
       }
-      return services.getContent().getNodes().stream()
-          .map(n -> createNode(new Group(), n, hosts, configHostName))
-          .collect(Collectors.toList());
+      return services
+        .getContent()
+        .getNodes()
+        .stream()
+        .map(n -> createNode(new Group(), n, hosts, configHostName))
+        .collect(Collectors.toList());
     }
 
-    return services.getContent().getGroups().stream()
-        .flatMap(
-            group ->
-                group.getNodes().stream().map(n -> createNode(group, n, hosts, configHostName)))
-        .collect(Collectors.toList());
+    return services
+      .getContent()
+      .getGroups()
+      .stream()
+      .flatMap(group ->
+        group
+          .getNodes()
+          .stream()
+          .map(n -> createNode(group, n, hosts, configHostName))
+      )
+      .collect(Collectors.toList());
   }
 
   private static Node createNode(
-      final com.vispana.api.model.apppackage.Group group,
-      final com.vispana.api.model.apppackage.Node appPackNode,
-      final Hosts hosts,
-      final String singleNodeHostName) {
+    final com.vispana.api.model.apppackage.Group group,
+    final com.vispana.api.model.apppackage.Node appPackNode,
+    final Hosts hosts,
+    final String singleNodeHostName
+  ) {
     Node node = new Node();
     node.setPort(DEFAULT_RPC_ADMIN_PORT);
     node.setKey(Long.parseLong(appPackNode.getDistributionKey()));
@@ -56,13 +73,15 @@ public class ContentNodesExtractor {
 
     String hostName = singleNodeHostName;
     if (hosts != null && !hosts.getHosts().isEmpty()) {
-      hostName =
-          hosts.getHosts().stream()
-              .filter(host -> hostAlias.equals(host.getAlias()))
-              .map(com.vispana.api.model.apppackage.Host::getName)
-              .findFirst()
-              .orElseThrow(
-                  () -> new RuntimeException("Failed to find host for alias: " + hostAlias));
+      hostName = hosts
+        .getHosts()
+        .stream()
+        .filter(host -> hostAlias.equals(host.getAlias()))
+        .map(com.vispana.api.model.apppackage.Host::getName)
+        .findFirst()
+        .orElseThrow(() ->
+          new RuntimeException("Failed to find host for alias: " + hostAlias)
+        );
     }
     node.setHost(hostName);
     return node;

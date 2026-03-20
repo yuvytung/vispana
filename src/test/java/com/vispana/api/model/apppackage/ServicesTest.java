@@ -36,27 +36,49 @@ class ServicesTest {
     assertNotNull(services);
     assertEquals(0, services.getContent().getGroups().size());
     assertEquals(2, services.getContent().getNodes().size());
-    assertEquals("0", services.getContent().getNodes().get(0).getDistributionKey());
-    assertEquals("content-0-0", services.getContent().getNodes().get(0).getHostAlias());
-    assertEquals("1", services.getContent().getNodes().get(1).getDistributionKey());
-    assertEquals("content-0-1", services.getContent().getNodes().get(1).getHostAlias());
+    assertEquals(
+      "0",
+      services.getContent().getNodes().get(0).getDistributionKey()
+    );
+    assertEquals(
+      "content-0-0",
+      services.getContent().getNodes().get(0).getHostAlias()
+    );
+    assertEquals(
+      "1",
+      services.getContent().getNodes().get(1).getDistributionKey()
+    );
+    assertEquals(
+      "content-0-1",
+      services.getContent().getNodes().get(1).getHostAlias()
+    );
   }
 
   @Test
   void fromXmlForSingleHost() {
-    String servicesXmlString = servicesXmlString("xml/services-single-host.xml");
+    String servicesXmlString = servicesXmlString(
+      "xml/services-single-host.xml"
+    );
 
     Services services = Services.fromXml(servicesXmlString);
     assertNotNull(services);
     assertEquals(0, services.getContent().getGroups().size());
     assertEquals(1, services.getContent().getNodes().size());
-    assertEquals("0", services.getContent().getNodes().get(0).getDistributionKey());
-    assertEquals("content-0-0", services.getContent().getNodes().get(0).getHostAlias());
+    assertEquals(
+      "0",
+      services.getContent().getNodes().get(0).getDistributionKey()
+    );
+    assertEquals(
+      "content-0-0",
+      services.getContent().getNodes().get(0).getHostAlias()
+    );
   }
 
   @Test
   void fromXmlForSingleGroup() {
-    String servicesXmlString = servicesXmlString("xml/services-single-group.xml");
+    String servicesXmlString = servicesXmlString(
+      "xml/services-single-group.xml"
+    );
 
     Services services = Services.fromXml(servicesXmlString);
     List<Group> groups = services.getContent().getGroups();

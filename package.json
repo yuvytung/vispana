@@ -34,6 +34,7 @@
     "uuid": "^9.0.1"
   },
   "scripts": {
+    "format": "prettier --plugin=prettier-plugin-java --write \"**/*.{js,jsx,ts,tsx,json,html,css,less,scss}\"",
     "watch": "webpack --watch"
   },
   "devDependencies": {
@@ -46,6 +47,8 @@
     "html-webpack-plugin": "^5.5.3",
     "postcss": "^8.4.31",
     "postcss-loader": "^7.3.3",
+    "prettier": "3.8.1",
+    "prettier-plugin-java": "2.8.1",
     "style-loader": "^3.3.3",
     "tailwindcss": "^3.3.5",
     "webpack": "^5.89.0",
