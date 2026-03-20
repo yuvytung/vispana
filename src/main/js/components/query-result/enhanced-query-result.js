@@ -5,9 +5,19 @@ import Loading from "../../routes/loading/loading";
 import VispanaError from "../../routes/error/vispana-error";
 import TabView from "../tabs/tab-view";
 import DynamicEnhancedGrid from "../simple-grid/dynamic-enhanced-grid";
-import { createReactHeaderClickHandler } from "../../utils/query-editor-integration";
 
-function EnhancedQueryResult({containerUrl, vispanaClient, query, showResults, schema, refreshQuery, defaultPageSize = 15, useTabs = false, onHeaderClick = null}) {
+function EnhancedQueryResult({
+                                 containerUrl,
+                                 vispanaClient,
+                                 query,
+                                 showResults,
+                                 schema,
+                                 refreshQuery,
+                                 defaultPageSize = 15,
+                                 useTabs = false,
+                                 onHeaderClick = null,
+                                 onEditDocument = null
+                             }) {
 
     // Calculate optimal values ONCE during component creation (synchronous)
     const calculateOptimalValues = () => {
@@ -79,27 +89,27 @@ function EnhancedQueryResult({containerUrl, vispanaClient, query, showResults, s
         try {
             const queryObject = JSON.parse(query)
             const response = await vispanaClient
-              .postQuery(containerUrl, queryObject, offset, perPage)
-              .then(response => {
-                  if (response.status && response.status !== 200) {
-                      const error = response.message ? response.message : "Failed to execute the query"
-                      return {
-                          success: undefined,
-                          error: error
-                      }
-                  } else {
-                      return {
-                          success: response,
-                          error: undefined
-                      }
-                  }
-              })
-              .catch(error => {
-                  return {
-                      success: undefined,
-                      error: error.message
-                  }
-              })
+                .postQuery(containerUrl, queryObject, offset, perPage)
+                .then(response => {
+                    if (response.status && response.status !== 200) {
+                        const error = response.message ? response.message : "Failed to execute the query"
+                        return {
+                            success: undefined,
+                            error: error
+                        }
+                    } else {
+                        return {
+                            success: response,
+                            error: undefined
+                        }
+                    }
+                })
+                .catch(error => {
+                    return {
+                        success: undefined,
+                        error: error.message
+                    }
+                })
 
             if (response.error) {
                 setError({
@@ -157,7 +167,7 @@ function EnhancedQueryResult({containerUrl, vispanaClient, query, showResults, s
         // Don't override perPage - let user keep their current selection
         setError({
             hasError: false,
-              error: ""
+            error: ""
         })
     }, [schema]);
 
@@ -202,6 +212,7 @@ function EnhancedQueryResult({containerUrl, vispanaClient, query, showResults, s
             progressComponent={<Loading centralize={false}/>}
             noDataComponent={<NoDataConst/>}
             gridHeight={gridHeight}
+            onEditDocument={onEditDocument}
             customStyles={{
                 head: {
                     style: {
@@ -308,4 +319,4 @@ function processResult(result) {
     }
 }
 
-export default EnhancedQueryResult; 
+export default EnhancedQueryResult;

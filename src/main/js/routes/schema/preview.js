@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react'
-import { useOutletContext } from "react-router-dom";
+import React, {useEffect, useState} from 'react'
+import {useOutletContext} from "react-router-dom";
 import DynamicEnhancedGrid from "../../components/simple-grid/dynamic-enhanced-grid";
 import VispanaApiClient from "../../client/vispana-api-client";
 import Loading from "../loading/loading";
 import VispanaError from "../error/vispana-error";
 
-function Preview({ containerUrl, schema }) {
+function Preview({containerUrl, schema, onEditDocument}) {
     const vispanaClient = new VispanaApiClient();
 
     // Calculate optimal values ONCE during component creation (synchronous)
@@ -14,18 +14,18 @@ function Preview({ containerUrl, schema }) {
 
         // overhead calculation for Preview tab
         const offsetHeight = 100;
-        
+
         // const totalOverhead = headerHeight + tabsHeight + paginationHeight + marginsPadding;
         const availableHeight = viewportHeight - offsetHeight;
-        
+
         // Calculate optimal page size
         const rowHeight = 52;
         const optimalRows = Math.floor(availableHeight / rowHeight);
         const optimalPageSize = Math.max(10, Math.min(50, optimalRows)); // Between 10-50 rows
-        
+
         // Calculate grid height (use remaining space)
         const gridHeight = Math.max(300, availableHeight); // Minimum 300px
-        
+
         return {
             pageSize: optimalPageSize,
             height: `${gridHeight}px`
@@ -37,9 +37,9 @@ function Preview({ containerUrl, schema }) {
     const [gridHeight] = useState(optimalValues.height);
     const [optimalPageSize] = useState(optimalValues.pageSize);
 
-    const [data, setData] = useState({ columns: [], content: [] });
+    const [data, setData] = useState({columns: [], content: []});
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState({ hasError: false, error: "" });
+    const [error, setError] = useState({hasError: false, error: ""});
     const [totalRows, setTotalRows] = useState(0);
     const [page, setPage] = useState(1);
     const [offset, setOffset] = useState(0);
@@ -89,19 +89,22 @@ function Preview({ containerUrl, schema }) {
             }
 
             setLoading(true);
-            setError({ hasError: false, error: "" });
+            setError({hasError: false, error: ""});
 
             try {
                 const defaultQuery = {
-                    yql: `SELECT * from ${schema} WHERE true LIMIT ${perPage};`
+                    yql: `SELECT *
+                          from ${schema}
+                          WHERE true
+                          LIMIT ${perPage};`
                 };
-                
+
                 console.log('Executing query:', defaultQuery);
                 console.log('Pagination params - offset:', offset, 'perPage:', perPage);
 
                 // Add timeout to prevent hanging
                 const queryPromise = vispanaClient.postQuery(containerUrl, defaultQuery, offset, perPage);
-                const timeoutPromise = new Promise((_, reject) => 
+                const timeoutPromise = new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('Query timeout after 10 seconds')), 10000)
                 );
 
@@ -110,14 +113,14 @@ function Preview({ containerUrl, schema }) {
                         console.log('Query response:', response);
                         if (response.status && response.status !== 200) {
                             const error = response.message ? response.message : "Failed to execute the query"
-                            return { success: undefined, error: error }
+                            return {success: undefined, error: error}
                         } else {
-                            return { success: response, error: undefined }
+                            return {success: response, error: undefined}
                         }
                     })
                     .catch(error => {
                         console.error('Query error:', error);
-                        return { success: undefined, error: error.message }
+                        return {success: undefined, error: error.message}
                     });
 
                 console.log('Processed response:', response);
@@ -132,26 +135,26 @@ function Preview({ containerUrl, schema }) {
                     console.log('Processing result data...');
                     const vespaState = response.success;
                     setTotalRows(vespaState.root.fields.totalCount);
-                    
+
                     const processedData = processResult(response.success);
                     console.log('Processed data:', processedData);
                     setData(processedData);
                 }
             } catch (exception) {
                 console.error('Exception in fetchPreviewData:', exception);
-                
+
                 // For debugging: provide sample data if API fails
                 console.log('Using sample data for testing...');
                 const sampleData = {
                     columns: [
-                        { name: 'id', selector: row => row.id },
-                        { name: 'title', selector: row => row.title },
-                        { name: 'content', selector: row => row.content }
+                        {name: 'id', selector: row => row.id},
+                        {name: 'title', selector: row => row.title},
+                        {name: 'content', selector: row => row.content}
                     ],
                     content: [
-                        { id: '1', title: 'Sample 1', content: 'Sample content 1' },
-                        { id: '2', title: 'Sample 2', content: 'Sample content 2' },
-                        { id: '3', title: 'Sample 3', content: 'Sample content 3' }
+                        {id: '1', title: 'Sample 1', content: 'Sample content 1'},
+                        {id: '2', title: 'Sample 2', content: 'Sample content 2'},
+                        {id: '3', title: 'Sample 3', content: 'Sample content 3'}
                     ]
                 };
                 setData(sampleData);
@@ -177,7 +180,7 @@ function Preview({ containerUrl, schema }) {
             setPage(1);
             setOffset(0);
         }
-        setError({ hasError: false, error: "" });
+        setError({hasError: false, error: ""});
     }, [schema, containerUrl]);
 
     // Process query results into grid format
@@ -196,7 +199,7 @@ function Preview({ containerUrl, schema }) {
 
         // if empty result, just skip
         if (!result || !result.root || !result.root.fields || !result.root.fields.totalCount) {
-            return { columns: [], content: [] };
+            return {columns: [], content: []};
         }
 
         const children = result.root.children ? result.root.children : [];
@@ -220,13 +223,13 @@ function Preview({ containerUrl, schema }) {
             return fields;
         });
 
-        return { columns, content };
+        return {columns, content};
     };
 
     if (error.hasError) {
         return (
-            <VispanaError 
-                showLogo={false} 
+            <VispanaError
+                showLogo={false}
                 errorMessage={{
                     title: "Failed to load preview",
                     description: error.error
@@ -236,7 +239,7 @@ function Preview({ containerUrl, schema }) {
     }
 
     if (loading) {
-        return <Loading centralize={false} />;
+        return <Loading centralize={false}/>;
     }
 
     return (
@@ -257,6 +260,7 @@ function Preview({ containerUrl, schema }) {
             progressPending={loading}
             progressComponent={<Loading centralize={false}/>}
             gridHeight={gridHeight}
+            onEditDocument={onEditDocument}
         />
     );
 }

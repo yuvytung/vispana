@@ -27,4 +27,41 @@ export default class VispanaApiClient {
         return fetch(`/api/query?container_host=${containerHost}`, options)
             .then(response => response.json())
     }
+
+    async saveDocument(containerHost, namespace, documentType, documentId, documentBody) {
+        const options = {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: documentBody
+        };
+
+        return fetch(`/api/document/save?container_host=${containerHost}&namespace=${namespace}&document_type=${documentType}&document_id=${documentId}`, options)
+            .then(response => response.json())
+    }
+
+    async deleteDocument(containerHost, namespace, documentType, documentId) {
+        const options = {
+            method: 'DELETE',
+            headers: {
+                'content-type': 'application/json',
+            }
+        };
+
+        return fetch(`/api/document/delete?container_host=${containerHost}&namespace=${namespace}&document_type=${documentType}&document_id=${documentId}`, options)
+            .then(response => response.json())
+    }
+
+    async getDocument(containerHost, namespace, documentType, documentId) {
+        const options = {
+            method: 'GET',
+            headers: {
+                'content-type': 'application/json',
+            }
+        };
+
+        return fetch(`/api/document/get?container_host=${containerHost}&namespace=${namespace}&document_type=${documentType}&document_id=${documentId}`, options)
+            .then(response => response.json())
+    }
 }

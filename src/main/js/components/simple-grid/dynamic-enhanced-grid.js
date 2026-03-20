@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from 'react';
-import DataTable, { createTheme } from 'react-data-table-component';
-import { Tooltip } from "react-tooltip";
+import React, {useState, useMemo} from 'react';
+import DataTable, {createTheme} from 'react-data-table-component';
+import {Tooltip} from "react-tooltip";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { androidstudio } from "react-syntax-highlighter/dist/cjs/styles/hljs";
+import {androidstudio} from "react-syntax-highlighter/dist/cjs/styles/hljs";
 
 // Create the dark theme matching your current styling
 createTheme('vispana-dark', {
@@ -173,7 +173,7 @@ const customStyles = {
 };
 
 // Copy button component
-const CopyButton = ({ data }) => {
+const CopyButton = ({data}) => {
     const handleCopy = async () => {
         try {
             await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
@@ -191,13 +191,26 @@ const CopyButton = ({ data }) => {
             data-tooltip-content="Copy row data"
             data-tooltip-place="top"
         >
-            <i className="fas fa-copy text-xs" />
+            <i className="fas fa-copy text-xs"/>
         </button>
     );
 };
 
+// Edit button component
+const EditButton = ({data, onEdit}) => (
+    <button
+        onClick={() => onEdit(data)}
+        className="text-yellow-400 hover:text-white transition-colors duration-200 p-1 ml-2"
+        data-tooltip-id="vispana-tooltip"
+        data-tooltip-content="Edit in Documents tab"
+        data-tooltip-place="top"
+    >
+        <i className="fas fa-edit text-xs"/>
+    </button>
+);
+
 // Popup button component
-const PopupButton = ({ data, onOpenPopup }) => (
+const PopupButton = ({data, onOpenPopup}) => (
     <button
         onClick={() => onOpenPopup(data)}
         className="text-yellow-400 hover:text-white transition-colors duration-200 p-1 ml-2"
@@ -205,12 +218,12 @@ const PopupButton = ({ data, onOpenPopup }) => (
         data-tooltip-content="Open in popup"
         data-tooltip-place="top"
     >
-        <i className="fas fa-external-link-alt text-xs" />
+        <i className="fas fa-external-link-alt text-xs"/>
     </button>
 );
 
 // Modal component for popup display
-const DataModal = ({ isOpen, onClose, data, title }) => {
+const DataModal = ({isOpen, onClose, data, title}) => {
     // ESC key handler
     React.useEffect(() => {
         const handleEscKey = (event) => {
@@ -231,8 +244,11 @@ const DataModal = ({ isOpen, onClose, data, title }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center p-4 bg-black bg-opacity-50" style={{ zIndex: 10000 }}>
-            <div className="bg-standout-blue border border-standout-blue rounded-lg shadow-lg max-w-4xl max-h-[90vh] w-full overflow-hidden" style={{ zIndex: 10001 }}>
+        <div className="fixed inset-0 flex items-center justify-center p-4 bg-black bg-opacity-50"
+             style={{zIndex: 10000}}>
+            <div
+                className="bg-standout-blue border border-standout-blue rounded-lg shadow-lg max-w-4xl max-h-[90vh] w-full overflow-hidden"
+                style={{zIndex: 10001}}>
                 <div className="flex justify-between items-center p-4 border-b border-darkest-blue">
                     <h3 className="text-yellow-400 font-bold text-lg">{title}</h3>
                     <button
@@ -253,7 +269,7 @@ const DataModal = ({ isOpen, onClose, data, title }) => {
 };
 
 // Expandable row component matching your current styling
-const ExpandableRowComponent = ({ data }) => (
+const ExpandableRowComponent = ({data}) => (
     <div className="p-4 bg-standout-blue border-t border-darkest-blue max-h-80 overflow-auto">
         <SyntaxHighlighter language="json" style={androidstudio}>
             {JSON.stringify(data, null, 2)}
@@ -262,8 +278,8 @@ const ExpandableRowComponent = ({ data }) => (
 );
 
 // Custom header component for clickable headers
-const ClickableHeader = ({ title, onHeaderClick }) => (
-    <div 
+const ClickableHeader = ({title, onHeaderClick}) => (
+    <div
         onClick={() => onHeaderClick && onHeaderClick(title)}
         className="cursor-pointer hover:text-white transition-colors duration-200"
         title={`Click to insert "${title}" into query`}
@@ -286,28 +302,29 @@ const formatCellData = (rawData) => {
 };
 
 // Main Dynamic Enhanced Grid component
-function DynamicEnhancedGrid({ 
-    header,
-    columns: providedColumns = [],
-    data = [],
-    onHeaderClick = null,
-    pagination = true,
-    paginationServer = false,
-    paginationTotalRows = 0,
-    paginationPerPage = 15,
-    paginationRowsPerPageOptions = [10, 15, 20, 25, 50],
-    onChangeRowsPerPage = null,
-    onChangePage = null,
-    fixedHeader = true,
-    expandableRows = true,
-    progressPending = false,
-    progressComponent = null,
-    noDataComponent = null,
-    customStyles: overrideStyles = {},
-    gridHeight = null, // New prop for custom height
-    actionsColumn = null, // Custom actions column renderer (null = default, false = no actions)
-    ...otherProps
-}) {
+function DynamicEnhancedGrid({
+                                 header,
+                                 columns: providedColumns = [],
+                                 data = [],
+                                 onHeaderClick = null,
+                                 pagination = true,
+                                 paginationServer = false,
+                                 paginationTotalRows = 0,
+                                 paginationPerPage = 15,
+                                 paginationRowsPerPageOptions = [10, 15, 20, 25, 50],
+                                 onChangeRowsPerPage = null,
+                                 onChangePage = null,
+                                 fixedHeader = true,
+                                 expandableRows = true,
+                                 progressPending = false,
+                                 progressComponent = null,
+                                 noDataComponent = null,
+                                 customStyles: overrideStyles = {},
+                                 gridHeight = null, // New prop for custom height
+                                 actionsColumn = null, // Custom actions column renderer (null = default, false = no actions)
+                                 onEditDocument = null, // Callback for edit button (row) => void
+                                 ...otherProps
+                             }) {
     const [modalData, setModalData] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -324,7 +341,7 @@ function DynamicEnhancedGrid({
     // Process columns to add click handlers and action buttons
     const processedColumns = useMemo(() => {
         const cols = [];
-        
+
         // Add actions column based on actionsColumn prop
         if (actionsColumn !== false) {
             if (typeof actionsColumn === 'function') {
@@ -345,11 +362,12 @@ function DynamicEnhancedGrid({
                     name: '',
                     cell: row => (
                         <div className="flex items-center">
-                            <CopyButton data={row} />
-                            <PopupButton data={row} onOpenPopup={openPopup} />
+                            <CopyButton data={row}/>
+                            <PopupButton data={row} onOpenPopup={openPopup}/>
+                            {onEditDocument && <EditButton data={row} onEdit={onEditDocument}/>}
                         </div>
                     ),
-                    width: '100px',
+                    width: onEditDocument ? '130px' : '100px',
                     center: true,
                     ignoreRowClick: true,
                     allowOverflow: true,
@@ -367,17 +385,17 @@ function DynamicEnhancedGrid({
                 parseInt(col.minWidth) || 50,
                 headerText.length * 8 + 40 // 8px per character + padding
             );
-            
-                        try {
+
+            try {
                 const finalColumn = {
                     ...col,
                     name: onHeaderClick ? (
-                        <ClickableHeader title={col.name} onHeaderClick={onHeaderClick} />
+                        <ClickableHeader title={col.name} onHeaderClick={onHeaderClick}/>
                     ) : col.name,
                     cell: col.cell || (row => {
                         const cellData = col.selector ? col.selector(row) : '';
                         return (
-                            <div 
+                            <div
                                 className="overflow-hidden text-ellipsis"
                                 title={formatCellData(cellData)}
                             >
@@ -387,24 +405,24 @@ function DynamicEnhancedGrid({
                     }),
                     sortable: false,
                     // Handle explicit width settings
-                    ...(col.width ? { width: col.width } : {}),
-                    ...(col.grow !== undefined ? { grow: col.grow } : {}),
-                    
+                    ...(col.width ? {width: col.width} : {}),
+                    ...(col.grow !== undefined ? {grow: col.grow} : {}),
+
                     // Handle minWidth: use original or calculated (whichever is larger)
-                    minWidth: col.minWidth ? 
-                        `${Math.max(parseInt(col.minWidth) || 0, calculatedMinWidth)}px` : 
+                    minWidth: col.minWidth ?
+                        `${Math.max(parseInt(col.minWidth) || 0, calculatedMinWidth)}px` :
                         `${Math.max(calculatedMinWidth, 200)}px`,
-                    
+
                     // Handle maxWidth: if header needs more space than maxWidth, remove maxWidth constraint
-                    ...(col.maxWidth && calculatedMinWidth <= parseInt(col.maxWidth) ? 
-                        { maxWidth: col.maxWidth } : {}),
-                    
+                    ...(col.maxWidth && calculatedMinWidth <= parseInt(col.maxWidth) ?
+                        {maxWidth: col.maxWidth} : {}),
+
                     // Set width for columns without explicit width or grow
                     ...(!col.width && col.grow === undefined ? {
                         width: `${Math.max(calculatedMinWidth, 200)}px`,
                     } : {}),
                 };
-                
+
                 return finalColumn;
             } catch (error) {
                 console.error(`Error creating column "${headerText}":`, error);
@@ -414,7 +432,7 @@ function DynamicEnhancedGrid({
 
         cols.push(...otherCols);
         return cols;
-    }, [providedColumns, onHeaderClick, actionsColumn]);
+    }, [providedColumns, onHeaderClick, actionsColumn, onEditDocument]);
 
     // Merge custom styles
     const mergedStyles = useMemo(() => ({
@@ -441,31 +459,31 @@ function DynamicEnhancedGrid({
             console.warn('paginationRowsPerPageOptions is not an array, using default');
             return [10, 15, 20, 25, 50];
         }
-        
+
         const validOptions = paginationRowsPerPageOptions
             .filter(option => typeof option === 'number' && option > 0)
             .sort((a, b) => a - b);
-        
+
         if (validOptions.length === 0) {
             console.warn('No valid pagination options found, using default');
             return [10, 15, 20, 25, 50];
         }
-        
+
         return validOptions;
     }, [paginationRowsPerPageOptions]);
 
     // Ensure pagination per page is valid
     const safePaginationPerPage = useMemo(() => {
-        const perPage = typeof paginationPerPage === 'number' && paginationPerPage > 0 
-            ? paginationPerPage 
+        const perPage = typeof paginationPerPage === 'number' && paginationPerPage > 0
+            ? paginationPerPage
             : 15;
-        
+
         // Make sure the current perPage is in the options list
         if (!safePaginationRowsPerPageOptions.includes(perPage)) {
             console.warn(`paginationPerPage (${perPage}) not in options, using first option`);
             return safePaginationRowsPerPageOptions[0];
         }
-        
+
         return perPage;
     }, [paginationPerPage, safePaginationRowsPerPageOptions]);
 
@@ -476,11 +494,11 @@ function DynamicEnhancedGrid({
                     <span>{header} ({data.length})</span>
                 </div>
             )}
-            
-            <div 
+
+            <div
                 className={gridHeight ? "" : "optimal-scroll-grid"}
-                style={gridHeight ? { 
-                    height: gridHeight, 
+                style={gridHeight ? {
+                    height: gridHeight,
                     maxHeight: gridHeight,
                     display: 'flex',
                     flexDirection: 'column',
@@ -516,7 +534,8 @@ function DynamicEnhancedGrid({
                     sortIcon={null}
                     defaultSortAsc={false}
                     sortServer={false}
-                    onSort={() => {}} // Empty function to prevent sorting
+                    onSort={() => {
+                    }} // Empty function to prevent sorting
                     {...otherProps}
                 />
             </div>
@@ -528,9 +547,9 @@ function DynamicEnhancedGrid({
                 title="Row Details"
             />
 
-            <Tooltip id="vispana-tooltip" />
+            <Tooltip id="vispana-tooltip"/>
         </div>
     );
 }
 
-export default DynamicEnhancedGrid; 
+export default DynamicEnhancedGrid;

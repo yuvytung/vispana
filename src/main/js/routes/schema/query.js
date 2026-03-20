@@ -4,9 +4,9 @@ import {v4 as uuidv4} from 'uuid';
 import EnhancedQueryResult from "../../components/query-result/enhanced-query-result";
 import Editor from "../../components/editor/editor-hybrid";
 import VispanaApiClient from "../../client/vispana-api-client";
-import { createReactHeaderClickHandler } from "../../utils/query-editor-integration";
+import {createReactHeaderClickHandler} from "../../utils/query-editor-integration";
 
-function Query({containerUrl, schema, searchParams, setSearchParams, vespaState}) {
+function Query({containerUrl, schema, searchParams, setSearchParams, vespaState, onEditDocument}) {
     const vispanaClient = new VispanaApiClient()
     const [query, setQuery] = useState(defaultQuery)
     const [showResults, setShowResults] = useState(false)
@@ -14,8 +14,8 @@ function Query({containerUrl, schema, searchParams, setSearchParams, vespaState}
 
     // Create header click handler that inserts field names into the query
     const handleHeaderClick = createReactHeaderClickHandler(
-        setQuery, 
-        query, 
+        setQuery,
+        query,
         {
             onHeaderClick: (headerText, newQuery) => {
                 console.log(`Inserted "${headerText}" into query`);
@@ -86,28 +86,28 @@ function Query({containerUrl, schema, searchParams, setSearchParams, vespaState}
                 vespaState={vespaState}/>
         <div className="form-control mb-2 flex flex-row pt-1 justify-end min-w-full">
             <a type="button"
-                className="btn bg-standout-blue text-yellow-400 w-13 text-center border-none outline-none mr-1"
-                data-tooltip-id="vispana-tooltip"
-                data-tooltip-content="Query reference"
-                data-tooltip-place="top"
-                target="_blank"
-                href={"https://docs.vespa.ai/en/reference/query-api-reference.html"}>
-                <i className={"text-xs fas fa-question pl-1 pr-1" } />
+               className="btn bg-standout-blue text-yellow-400 w-13 text-center border-none outline-none mr-1"
+               data-tooltip-id="vispana-tooltip"
+               data-tooltip-content="Query reference"
+               data-tooltip-place="top"
+               target="_blank"
+               href={"https://docs.vespa.ai/en/reference/query-api-reference.html"}>
+                <i className={"text-xs fas fa-question pl-1 pr-1"}/>
             </a>
             <button type="button"
-                className="btn bg-standout-blue text-yellow-400 w-13 text-center border-none outline-none mr-1"
-                data-tooltip-id="vispana-tooltip"
-                data-tooltip-content="Format Query (Cmd+Opt+L)"
-                data-tooltip-place="top"
-                onClick={(e) => prettifyJsonQuery(query)}>
+                    className="btn bg-standout-blue text-yellow-400 w-13 text-center border-none outline-none mr-1"
+                    data-tooltip-id="vispana-tooltip"
+                    data-tooltip-content="Format Query (Cmd+Opt+L)"
+                    data-tooltip-place="top"
+                    onClick={(e) => prettifyJsonQuery(query)}>
                 <i className="fas fa-code "/>
             </button>
             <button type="button"
-                className="btn bg-standout-blue text-yellow-400 w-13 text-center border-none outline-none mr-1"
-                data-tooltip-id="vispana-tooltip"
-                data-tooltip-content="Add Trace"
-                data-tooltip-place="top"
-                onClick={addTrace}>
+                    className="btn bg-standout-blue text-yellow-400 w-13 text-center border-none outline-none mr-1"
+                    data-tooltip-id="vispana-tooltip"
+                    data-tooltip-content="Add Trace"
+                    data-tooltip-place="top"
+                    onClick={addTrace}>
                 <i className="fas fa-stopwatch pl-1 pr-1"/>
             </button>
             <button type="button"
@@ -116,30 +116,34 @@ function Query({containerUrl, schema, searchParams, setSearchParams, vespaState}
                     data-tooltip-content="Query (Cmd+Enter)"
                     data-tooltip-place="top"
                     onClick={handleClick}>
-                    <i className={"text-xs fas fa-play pr-2"}> </i>
-                    <span className="uppercase">Query</span>
+                <i className={"text-xs fas fa-play pr-2"}> </i>
+                <span className="uppercase">Query</span>
             </button>
         </div>
 
         {showResults && <div className={"min-w-full"}>
             <EnhancedQueryResult key="query"
-                         query={query}
-                         defaultPageSize={10}
-                         containerUrl={containerUrl}
-                         schema={schema}
-                         showResults={showResults}
-                         refreshQuery={refreshQuery}
-                         vispanaClient={vispanaClient}
-                         useTabs={true}
-                         onHeaderClick={handleHeaderClick}/>
+                                 query={query}
+                                 defaultPageSize={10}
+                                 containerUrl={containerUrl}
+                                 schema={schema}
+                                 showResults={showResults}
+                                 refreshQuery={refreshQuery}
+                                 vispanaClient={vispanaClient}
+                                 useTabs={true}
+                                 onHeaderClick={handleHeaderClick}
+                                 onEditDocument={onEditDocument}/>
         </div>}
-        <Tooltip id="vispana-tooltip" />
+        <Tooltip id="vispana-tooltip"/>
     </div>
 }
 
 export function defaultQuery(schema) {
     return JSON.stringify({
-        yql: `SELECT * from ${schema} where true` }, null, 2);
+        yql: `SELECT *
+              from ${schema}
+              where true`
+    }, null, 2);
 }
 
 export function queryFieldFromSearchParam(schema) {
